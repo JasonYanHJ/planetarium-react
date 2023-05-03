@@ -1,0 +1,76 @@
+.chatting-context {
+  height: calc(100vh - 64px - 64px);
+  overflow-y: scroll;
+}
+
+.chatting-header {
+  text-align: center;
+  padding: 16px 0;
+  background-color: rgb(86, 127, 189);
+}
+
+.message {
+  margin: 16px 12px;
+}
+
+.message .message-info {
+  display: flex;
+  align-items: baseline;
+}
+.message.mine .message-info {
+  flex-direction: row-reverse;
+}
+.message .message-info .sender {
+  font-weight: bold;
+  padding: 0 4px;
+}
+.message .message-info .send-time {
+  font-size: small;
+  color: rgb(65, 65, 65);
+}
+
+.message .content-outer {
+  margin-top: 6px;
+  display: flex;
+}
+.message.mine .content-outer {
+  flex-direction: row-reverse;
+}
+
+.message .content-inner {
+  background-color: white;
+  max-width: 90%;
+  border-radius: 12px;
+  padding: 16px;
+  word-break: break-all;
+}
+.message.mine .content-inner {
+  background-color: rgb(48, 102, 239);
+  color: rgba(255, 255, 255, 0.916);
+}
+
+.message .content-inner p {
+  margin-bottom: 0.75rem;
+}
+.message .content-inner p:last-child {
+  margin-bottom: 0;
+}
+
+.chatting-send-message {
+  height: 64px;
+  background-color: rgb(86, 127, 189);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatting-send-message .ant-dropdown-button {
+  align-items: center;
+  justify-content: center;
+}
+.chatting-send-message .ant-dropdown-button .ant-btn-compact-first-item {
+  width: 80%;
+}
+.chatting-send-message .ant-dropdown-button .ant-btn {
+  height: 40px;
+}

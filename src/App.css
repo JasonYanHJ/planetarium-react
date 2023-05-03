@@ -1,0 +1,21 @@
+#App {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  background-color: black;
+}
+
+#chatting-room {
+  width: 30%;
+  background-color: #cbdcf7;
+}
+
+#scene-wrapper {
+  width: 70%;
+}
+
+#scene-wrapper #container {
+  width: 100%;
+  height: 100%;
+  outline: none;
+}

@@ -27,4 +27,29 @@ const basicMaterials = [
   new THREE.MeshPhongMaterial({ color: 0xFC370C }),
 ];
 
-export {heads, bodies, basicMaterials}
+function createPerson(figure) {
+  // 创建小人的头部
+  const head = new THREE.Mesh(
+    heads[figure.headGNo],
+    basicMaterials[figure.headCNo]
+  );
+  head.position.y = 50;
+
+  // 创建小人的身体
+  const body = new THREE.Mesh(
+    bodies[figure.bodyGNo],
+    basicMaterials[figure.bodyCNo]
+  );
+  body.position.y = 18;
+
+  // 创建小人
+  const person = new THREE.Group();
+  person.add(head);
+  person.add(body);
+
+  person.elements = { head, body };
+
+  return person;
+}
+
+export { heads, bodies, basicMaterials, createPerson }

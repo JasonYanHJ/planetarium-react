@@ -3,9 +3,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import distance from '../../utils/distance';
 import { getPersonInfo } from '../../utils/personInfo';
-import { randomInt } from '../../utils/random';
 import { earthModel, plutoModel } from './exhibit_models';
-import { basicMaterials, bodies, heads } from './person_models';
+import { createPerson } from './person_models';
 
 function updatePosition(target, camera, keyboard, planets) {
   const back = new THREE.Vector3();
@@ -98,24 +97,7 @@ const MainScene = () => {
 
     // 获取小人形象信息
     const figure = getPersonInfo().figure;
-    // 创建小人的头部
-    const head = new THREE.Mesh(
-      heads[figure.headGNo],
-      basicMaterials[figure.headCNo]
-    );
-    // 将头部放置在场景中
-    head.position.y = 50;
-    // 创建小人的身体
-    const body = new THREE.Mesh(
-      bodies[figure.bodyGNo],
-      basicMaterials[figure.bodyCNo]
-    );
-    // 将身体放置在场景中
-    body.position.y = 18;
-    // 创建小人
-    const person = new THREE.Group();
-    person.add(head);
-    person.add(body);
+    const person = createPerson(figure);
     // 将小人放置在场景中
     scene.add(person);
 

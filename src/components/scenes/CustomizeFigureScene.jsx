@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { getPersonInfo, updatePersonInfo } from '../../utils/personInfo';
 import { randomInt } from '../../utils/random';
 import { request } from '../../utils/request';
-import { basicMaterials, bodies, heads } from './person_models';
+import { basicMaterials, bodies, createPerson, heads } from './person_models';
 
 const CustomizeFigureScene = () => {
   useEffect(() => {
@@ -55,59 +55,39 @@ const CustomizeFigureScene = () => {
     let [headGNo, headCNo, bodyGNo, bodyCNo] = personInfo?.figure
       ? [personInfo.figure.headGNo, personInfo.figure.headCNo, personInfo.figure.bodyGNo, personInfo.figure.bodyCNo]
       : [randomInt(0, heads.length), randomInt(0, basicMaterials.length), randomInt(0, bodies.length), randomInt(0, basicMaterials.length)];
-
-    // 创建小人的头部
-    const head = new THREE.Mesh(
-      heads[headGNo],
-      basicMaterials[headCNo]
-    );
-    // 将头部放置在场景中
-    head.position.y = 50;
-
-    // 创建小人的身体
-    const body = new THREE.Mesh(
-      bodies[bodyGNo],
-      basicMaterials[bodyCNo]
-    );
-    // 将身体放置在场景中
-    body.position.y = 18;
-
-
-    // 创建小人
-    const person = new THREE.Group();
-    person.add(head);
-    person.add(body);
-
+    const person = createPerson({headGNo, headCNo, bodyGNo, bodyCNo});
     // 将小人放置在场景中
     scene.add(person);
 
     // 添加切换形象事件的监听
-    document.addEventListener('msg-system', e => {
+    const handleEvent = e => {
       switch(e.detail.case) {
         case 'change-figure':
           console.log(e);
           if (e.detail.target === 'headGNo') {
             headGNo = (++headGNo) % heads.length;
-            head.geometry = heads[headGNo];
+            person.elements['head'].geometry = heads[headGNo];
           } else if (e.detail.target === 'headCNo') {
             headCNo = (++headCNo) % basicMaterials.length;
-            head.material = basicMaterials[headCNo];
+            person.elements['head'].material = basicMaterials[headCNo];
           } else if (e.detail.target === 'bodyGNo') {
             bodyGNo = (++bodyGNo) % bodies.length;
-            body.geometry = bodies[bodyGNo];
+            person.elements['body'].geometry = bodies[bodyGNo];
           } else if (e.detail.target === 'bodyCNo') {
             bodyCNo = (++bodyCNo) % basicMaterials.length;
-            body.material = basicMaterials[bodyCNo];
+            person.elements['body'].material = basicMaterials[bodyCNo];
           }
           break;
         case 'save-figure':
           updatePersonInfo({ figure: { headGNo, headCNo, bodyGNo, bodyCNo } });
           console.log(getPersonInfo())
           request('user/update', getPersonInfo());
+          document.removeEventListener('msg-system', handleEvent);
           break;
         default: return;
       }
-    });
+    };
+    document.addEventListener('msg-system', handleEvent);
 
     // 渲染场景和相机
     function animate() {

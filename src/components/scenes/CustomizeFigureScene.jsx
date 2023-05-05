@@ -66,16 +66,16 @@ const CustomizeFigureScene = () => {
           console.log(e);
           if (e.detail.target === 'headGNo') {
             headGNo = (++headGNo) % heads.length;
-            person.elements['head'].geometry = heads[headGNo];
+            person.userData['head'].geometry = heads[headGNo];
           } else if (e.detail.target === 'headCNo') {
             headCNo = (++headCNo) % basicMaterials.length;
-            person.elements['head'].material = basicMaterials[headCNo];
+            person.userData['head'].material = basicMaterials[headCNo];
           } else if (e.detail.target === 'bodyGNo') {
             bodyGNo = (++bodyGNo) % bodies.length;
-            person.elements['body'].geometry = bodies[bodyGNo];
+            person.userData['body'].geometry = bodies[bodyGNo];
           } else if (e.detail.target === 'bodyCNo') {
             bodyCNo = (++bodyCNo) % basicMaterials.length;
-            person.elements['body'].material = basicMaterials[bodyCNo];
+            person.userData['body'].material = basicMaterials[bodyCNo];
           }
           break;
         case 'save-figure':

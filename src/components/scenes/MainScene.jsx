@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
+import { connect } from 'socket.io-client';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import distance from '../../utils/distance';
 import { getPersonInfo } from '../../utils/personInfo';
 import { earthModel, plutoModel } from './exhibit_models';
-import { createPerson } from './person_models';
+import { createPerson, updatePerson } from './person_models';
 
-function updatePosition(target, camera, keyboard, planets) {
+function updatePosition(target, camera, keyboard, planets, socket) {
   const back = new THREE.Vector3();
   const left = new THREE.Vector3();
   // 获取相机的方向向量、右向量和左向量
@@ -24,15 +25,50 @@ function updatePosition(target, camera, keyboard, planets) {
   if (keyboard['S'])
     target.position.addScaledVector(back, -3);
   
-  // 计算是否要触发介绍
+  
+  // 若没有发生移动，直接返回
   if (!(keyboard['A'] || keyboard['D'] || keyboard['W'] || keyboard['S']))
     return;
+  
+  // 想服务端更新所处位置
+  socket.emit('updatePos', {
+    position: {
+      x: target.position.x,
+      y: target.position.y,
+      z: target.position.z,
+    }
+  });
+  
+  // 计算是否要触发介绍
   planets.forEach(p => {
     if (
       distance(oldPosition, p.position) >= p.introduceRadius &&
       distance(target.position, p.position) < p.introduceRadius
     )
       document.dispatchEvent(new CustomEvent('msg-system', {detail: {case: 'introduce', name: p.name}}));
+  });
+}
+
+function updatePlayers(players, nextFrameInfo = [], scene) {
+  console.log(nextFrameInfo)
+  const self = getPersonInfo().username;
+  const usernames = Object.keys(players);
+  const toRemove = usernames.filter(x => !nextFrameInfo.some(info => info.username == x));
+
+  nextFrameInfo.forEach(info => {
+    if (info.username == self)
+      return;
+    if (players[info.username])
+      updatePerson(players[info.username], info.figure, info.position);
+    else {
+      players[info.username] = createPerson(info.figure, info.position);
+      scene.add(players[info.username]);
+    }
+  });
+
+  toRemove.forEach(username => {
+    scene.remove(players[username]);
+    delete players[username];
   });
 }
 
@@ -43,6 +79,12 @@ const MainScene = () => {
     if (!container || container.children.length > 0)
       return;
     
+    let players = {};
+    console.log("socket");
+    const socket = connect("http://127.0.0.1:9092", { query: { uid: getPersonInfo().uid }, allowEIO3: true });
+    socket.on('connect', () => console.log("connect"));
+    socket.on('update', (data) => updatePlayers(players, data, scene));
+
     // 定义一个键盘状态对象，用于跟踪按下的键
     const keyboard = {};
     // 添加键盘事件监听器
@@ -110,7 +152,7 @@ const MainScene = () => {
 
     // 渲染场景和相机
     function animate() {
-      updatePosition(person, camera, keyboard, planets);
+      updatePosition(person, camera, keyboard, planets, socket);
       planets.forEach(p => p.animation());
 
       requestAnimationFrame(animate);
@@ -119,6 +161,11 @@ const MainScene = () => {
     }
 
     animate();
+
+    return () => {
+      socket.destroy();
+      players = {};
+    };
   }, [])
   
   return (

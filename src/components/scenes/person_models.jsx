@@ -27,7 +27,7 @@ const basicMaterials = [
   new THREE.MeshPhongMaterial({ color: 0xFC370C }),
 ];
 
-function createPerson(figure) {
+function createPerson(figure, position) {
   // 创建小人的头部
   const head = new THREE.Mesh(
     heads[figure.headGNo],
@@ -47,9 +47,22 @@ function createPerson(figure) {
   person.add(head);
   person.add(body);
 
-  person.elements = { head, body };
-
+  person.userData = { head, body };
+  if (position)
+    person.position.set(position.x, position.y, position.z);
+  
   return person;
 }
 
-export { heads, bodies, basicMaterials, createPerson }
+function updatePerson(person, figure, position) {
+  if (position)
+    person.position.set(position.x, position.y, position.z);
+  if (figure) {
+    person.userData['head'].geometry = heads[figure.headGNo];
+    person.userData['head'].material = basicMaterials[figure.headCNo];
+    person.userData['body'].geometry = bodies[figure.bodyGNo];
+    person.userData['body'].material = basicMaterials[figure.bodyCNo];
+  }
+}
+
+export { heads, bodies, basicMaterials, createPerson, updatePerson }
